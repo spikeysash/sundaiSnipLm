@@ -65,8 +65,9 @@ Click any suggestion for instant answers!
 ## Using History
 
 - All your snips are saved automatically in the **left sidebar**
+- **AI automatically names** each snip based on what's in it (e.g., "Python Error Fix", "Login Form Design")
 - **Click** any snip to reload it
-- **Double-click** any snip name to rename it
+- **Double-click** any snip name to rename it manually
 - Click "🗑️ Clear All" to delete all history
 
 ## Building an Executable
@@ -92,6 +93,7 @@ Your executable will be in the `dist` folder!
 - **Ctrl+C** - Copy selected text in chat
 - **Right-click** in chat - Quick copy menu
 - **Model dropdown** - Switch between GPT-4o-mini (faster/cheaper) and GPT-4o (more capable)
+- **Smart naming** - AI automatically generates meaningful names for your snips based on content
 - The app remembers your common questions and suggests them
 - Click "📋 Copy Last Response" to quickly copy AI's answer
 - History saves your last 100 snips automatically

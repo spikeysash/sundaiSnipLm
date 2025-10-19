@@ -461,10 +461,10 @@ class SnipLM:
         image_path = os.path.join(self.history_dir, f"{snip_id}.png")
         image.save(image_path)
         
-        # Create snip entry
+        # Create snip entry with temporary name
         snip_entry = {
             'id': snip_id,
-            'name': f"Snip {timestamp.strftime('%I:%M %p')}",
+            'name': f"📸 {timestamp.strftime('%I:%M %p')}",  # Temporary name, will be updated by AI
             'timestamp': timestamp.isoformat(),
             'path': image_path,
             'size': list(image.size),
@@ -562,7 +562,10 @@ class SnipLM:
                         "role": "system",
                         "content": """You are an expert at analyzing screenshots and detecting user intent.
 
-STEP 1: Detect the content type. Look for these patterns:
+STEP 1: Generate a SHORT, DESCRIPTIVE NAME (2-4 words) for this screenshot based on its content.
+Examples: "Python IndexError Fix", "Login Form Design", "Sales Dashboard", "Git Merge Conflict"
+
+STEP 2: Detect the content type. Look for these patterns:
 
 🔴 ERROR/EXCEPTION:
 - Keywords: "Error", "Exception", "Traceback", "Failed", "Warning", "at line"
@@ -592,11 +595,11 @@ STEP 1: Detect the content type. Look for these patterns:
 - Patterns: configuration options, settings menus
 - Suggest: "What do these settings do?", "Recommend configuration", "Explain these options"
 
-STEP 2: Generate 3-4 HIGHLY SPECIFIC questions based on what you detected. Make questions actionable and directly related to the content.
+STEP 3: Generate 3-4 HIGHLY SPECIFIC questions based on what you detected. Make questions actionable and directly related to the content.
 
-STEP 3: ALWAYS include text extraction if any readable text is visible.
+STEP 4: ALWAYS include text extraction if any readable text is visible.
 
-Format as valid JSON: [{"question": "...", "answer": "..."}]
+Format as valid JSON: {"name": "Short Name Here", "questions": [{"question": "...", "answer": "..."}]}
 
 Be specific! Don't say "What is this?" - say "What's causing this IndexError?" or "How does this authentication function work?"."""
                     },
@@ -605,7 +608,7 @@ Be specific! Don't say "What is this?" - say "What's causing this IndexError?" o
                         "content": [
                             {
                                 "type": "text",
-                                "text": "Analyze this screenshot. FIRST identify the content type (error/code/UI/data/etc), THEN generate specific, actionable questions with complete answers."
+                                "text": "Analyze this screenshot. Generate a short descriptive name, identify the content type, then generate specific, actionable questions with complete answers."
                             },
                             {
                                 "type": "image_url",
@@ -623,9 +626,24 @@ Be specific! Don't say "What is this?" - say "What's causing this IndexError?" o
             
             # Try to parse JSON response
             import re
-            json_match = re.search(r'\[.*\]', content, re.DOTALL)
+            json_match = re.search(r'\{.*\}', content, re.DOTALL)
             if json_match:
-                suggestions_data = json.loads(json_match.group())
+                response_data = json.loads(json_match.group())
+                
+                # Extract name and update memory
+                snip_name = response_data.get('name', 'Unnamed Snip')
+                if self.current_snip_id:
+                    # Update the name in memory
+                    for snip in self.memory['snips']:
+                        if snip['id'] == self.current_snip_id:
+                            snip['name'] = snip_name
+                            break
+                    self.save_memory()
+                    # Refresh history list on main thread
+                    self.root.after(0, self.refresh_history_list)
+                
+                # Extract questions
+                suggestions_data = response_data.get('questions', [])
                 
                 # Cache the answers
                 for item in suggestions_data:

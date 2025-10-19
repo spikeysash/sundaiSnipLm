@@ -21,6 +21,7 @@ An intelligent Windows snipping tool that integrates with OpenAI's vision models
 - 📝 Copy individual chat responses or selected text
 - ⌨️ Right-click context menu in chat for quick copying
 - 📚 History sidebar - browse and reload previous snips
+- 🏷️ Smart contextual names - AI automatically names snips based on content
 - ✏️ Rename snips by double-clicking in history
 - 🕒 Auto-saved snip history (up to 100 snips)
 - 🔧 Resizable panes - drag dividers to customize your layout
@@ -107,6 +108,7 @@ The executable will be in the `dist` folder.
 - Suggested questions are contextual and come with pre-generated answers
 - Click any suggestion for an instant answer (no API call needed!)
 - Suggestions are saved with snips - reload old snips with their original suggestions
+- **AI automatically names your snips** based on content: "Python Error Fix", "Login Form", etc.
 - The AI remembers your chat history for each snip session
 - Press ESC during screen selection to cancel
 - You can switch between different GPT models in the toolbar
